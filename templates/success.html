@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Successful</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .success-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+
+        .success-box {
+            background: rgba(255,255,255,0.1);
+            padding: 3rem 4rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: bounceIn 0.8s ease;
+            z-index: 2;
+        }
+
+        .success-box h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-box p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .success-box a {
+            text-decoration: none;
+            padding: 0.8rem 2rem;
+            background: #ffeb3b;
+            color: #6a11cb;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .success-box a:hover {
+            transform: scale(1.1);
+            background: #fff;
+            color: #2575fc;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        /* Confetti styles */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ffeb3b;
+            top: 0;
+            animation: fall 3s linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="success-container">
+    <div class="success-box">
+        <h1>🎉 Booking Successful! 🎉</h1>
+        <p>Thank you for booking with us, your trip is now confirmed!</p>
+        <a href="{{ url_for('home') }}">Back to Home</a>
+    </div>
+</div>
+
+<script>
+    // Create multiple confetti elements
+    const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A6', '#FFC300', '#33FFF3'];
+    for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = Math.random() * window.innerWidth + 'px';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = Math.random() * 8 + 5 + 'px';
+        confetti.style.height = confetti.style.width;
+        confetti.style.animationDuration = (Math.random() * 2 + 3) + 's';
+        confetti.style.opacity = Math.random();
+        document.body.appendChild(confetti);
+    }
+</script>
+
+</body>
+</html>

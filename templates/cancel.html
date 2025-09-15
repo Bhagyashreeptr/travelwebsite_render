@@ -1,0 +1,113 @@
+from flask import Flask, render_template, request, redirect, url_for
+import mysql.connector
+import webbrowser  # for auto-open
+
+# --- Create Flask app ---
+app = Flask(__name__)
+
+# --- MySQL Connection ---
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",                  # your MySQL user
+    password="bhagyashree@123",   # your exact password
+    database="travel_db"
+)
+cursor = db.cursor(dictionary=True)
+
+# --- Home Page ---
+@app.route('/')
+def home():
+    cursor.execute("SELECT * FROM flights")
+    flights = cursor.fetchall()
+    cursor.execute("SELECT * FROM hotels")
+    hotels = cursor.fetchall()
+    return render_template('home.html', flights=flights, hotels=hotels)
+
+# --- Booking Page ---
+@app.route('/booking', methods=['GET', 'POST'])
+def booking():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone']
+        flight_id = request.form['flight']
+        hotel_id = request.form['hotel']
+
+        # Insert customer info
+        ins_cursor = db.cursor()
+        ins_cursor.execute(
+            "INSERT INTO customers (name,email,phone) VALUES (%s,%s,%s)",
+            (name, email, phone)
+        )
+        db.commit()
+        customer_id = ins_cursor.lastrowid
+        ins_cursor.close()
+
+        # Insert booking info
+        ins_cursor = db.cursor()
+        ins_cursor.execute(
+            "INSERT INTO bookings (customer_id, flight_id, hotel_id, status) VALUES (%s,%s,%s,'Booked')",
+            (customer_id, flight_id, hotel_id)
+        )
+        db.commit()
+        ins_cursor.close()
+
+        # Render attractive success page
+        return render_template('success.html')
+
+    # GET request: show booking form
+    cursor.execute("SELECT * FROM flights")
+    flights = cursor.fetchall()
+    cursor.execute("SELECT * FROM hotels")
+    hotels = cursor.fetchall()
+    return render_template('booking.html', flights=flights, hotels=hotels)
+
+# --- Reports Page ---
+@app.route('/reports')
+def reports():
+    cursor.execute(
+        "SELECT b.id, c.name AS customer_name, f.name AS flight_name, "
+        "f.source, f.destination, b.status "
+        "FROM bookings b "
+        "JOIN customers c ON b.customer_id = c.id "
+        "JOIN flights f ON b.flight_id = f.id "
+        "ORDER BY b.id DESC"
+    )
+    report_data = cursor.fetchall()
+    return render_template('reports.html', report_data=report_data)
+
+# --- Cancel Booking Page ---
+@app.route('/cancel', methods=['GET', 'POST'])
+def cancel_booking():
+    if request.method == 'POST':
+        booking_id = request.form.get('booking_id')
+        if booking_id:
+            upd_cursor = db.cursor()
+            upd_cursor.execute(
+                "UPDATE bookings SET status='Cancelled' WHERE id=%s AND status='Booked'",
+                (booking_id,)
+            )
+            db.commit()
+            upd_cursor.close()
+        return redirect(url_for('cancel_booking'))
+
+    # GET: show all bookings (latest first)
+    sel_cursor = db.cursor(dictionary=True)
+    sel_cursor.execute(
+        "SELECT b.id, c.name AS customer_name, c.email, c.phone, "
+        "f.name AS flight_name, f.source, f.destination, "
+        "h.name AS hotel_name, b.status "
+        "FROM bookings b "
+        "JOIN customers c ON b.customer_id = c.id "
+        "JOIN flights f ON b.flight_id = f.id "
+        "JOIN hotels h ON b.hotel_id = h.id "
+        "ORDER BY b.id DESC"
+    )
+    bookings = sel_cursor.fetchall()
+    sel_cursor.close()
+    return render_template('cancel.html', bookings=bookings)
+
+# --- Run Flask and auto-open browser ---
+if __name__ == "__main__":
+    webbrowser.open("http://127.0.0.1:5000/")
+    app.run(debug=True)

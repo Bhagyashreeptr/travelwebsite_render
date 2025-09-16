@@ -13,7 +13,7 @@
         }
 
         h2 {
-            color: black; /* Heading in black */
+            color: black;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
 
@@ -88,6 +88,8 @@
                 <th>Flight</th>
                 <th>Route</th>
                 <th>Hotel</th>
+                <th>Total Price</th>
+                <th>Payment</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -98,9 +100,11 @@
                 <td>{{ r.customer_name }}</td>
                 <td>{{ r.email }}</td>
                 <td>{{ r.phone }}</td>
-                <td>{{ r.flight_name }}</td>
-                <td>{{ r.source }} → {{ r.destination }}</td>
-                <td>{{ r.hotel_name }}</td>
+                <td>{{ r.flight.name }}</td>
+                <td>{{ r.flight.source }} → {{ r.flight.destination }}</td>
+                <td>{{ r.hotel.name }} - {{ r.hotel.location }}</td>
+                <td>${{ r.total }}</td>
+                <td>{{ r.payment }}</td>
                 <td>
                     {% if r.status == "Cancelled" %}
                         <span class="badge badge-cancelled"><i class="fa-solid fa-xmark"></i> Cancelled</span>

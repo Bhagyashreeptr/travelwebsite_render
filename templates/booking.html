@@ -75,6 +75,11 @@
                 padding: 20px;
             }
         }
+
+        input[readonly] {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -98,22 +103,71 @@
         </div>
 
         <label>Choose Flight</label>
-        <select name="flight" required>
+        <select name="flight" id="flightSelect" required>
             <option value="">-- Select Flight --</option>
             {% for flight in flights %}
-                <option value="{{ flight.id }}">{{ flight.name }} ({{ flight.source }} → {{ flight.destination }})</option>
+                <option value="{{ flight.id }}" data-destination="{{ flight.destination }}" data-price="{{ flight.price }}">
+                    {{ flight.name }} ({{ flight.source }} → {{ flight.destination }}) - ${{ flight.price }}
+                </option>
             {% endfor %}
         </select>
 
         <label>Choose Hotel</label>
-        <select name="hotel" required>
+        <select name="hotel" id="hotelSelect" required>
             <option value="">-- Select Hotel --</option>
             {% for hotel in hotels %}
-                <option value="{{ hotel.id }}">{{ hotel.name }} - {{ hotel.location }}</option>
+                <option value="{{ hotel.id }}" data-location="{{ hotel.location }}" data-price="{{ hotel.price }}">
+                    {{ hotel.name }} - {{ hotel.location }} - ${{ hotel.price }}
+                </option>
             {% endfor %}
+        </select>
+
+        <label>Total Price</label>
+        <input type="text" id="totalPrice" value="$0" readonly>
+
+        <label>Payment Method</label>
+        <select name="payment" required>
+            <option value="">-- Select Payment Method --</option>
+            <option value="UPI">UPI</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Debit Card">Debit Card</option>
+            <option value="Net Banking">Net Banking</option>
         </select>
 
         <button type="submit"><i class="fa-solid fa-check"></i> Book Now</button>
     </form>
+
+    <script>
+        const flightSelect = document.getElementById("flightSelect");
+        const hotelSelect = document.getElementById("hotelSelect");
+        const totalPriceInput = document.getElementById("totalPrice");
+        const allHotels = Array.from(hotelSelect.options);
+
+        function updateTotalPrice() {
+            const selectedFlight = flightSelect.options[flightSelect.selectedIndex];
+            const selectedHotel = hotelSelect.options[hotelSelect.selectedIndex];
+            
+            let flightPrice = selectedFlight ? parseFloat(selectedFlight.getAttribute("data-price")) || 0 : 0;
+            let hotelPrice = selectedHotel ? parseFloat(selectedHotel.getAttribute("data-price")) || 0 : 0;
+
+            totalPriceInput.value = "$" + (flightPrice + hotelPrice);
+        }
+
+        flightSelect.addEventListener("change", function() {
+            const selectedFlight = flightSelect.options[flightSelect.selectedIndex];
+            const destination = selectedFlight.getAttribute("data-destination");
+
+            hotelSelect.innerHTML = '<option value="">-- Select Hotel --</option>';
+            allHotels.forEach(hotel => {
+                if (hotel.getAttribute("data-location") === destination) {
+                    hotelSelect.appendChild(hotel.cloneNode(true));
+                }
+            });
+
+            updateTotalPrice();
+        });
+
+        hotelSelect.addEventListener("change", updateTotalPrice);
+    </script>
 </body>
 </html>

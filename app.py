@@ -16,9 +16,11 @@ hotels = [
     {"id": 2, "name": "ITC Gardenia", "location": "Bangalore", "price": 180},
     {"id": 3, "name": "The Leela Palace", "location": "Delhi", "price": 250},
     {"id": 4, "name": "Oberoi Grand", "location": "Kolkata", "price": 220},
+    {"id": 5, "name": "Goa Beach Resort", "location": "Goa", "price": 190},
+    {"id": 6, "name": "Chennai Central Hotel", "location": "Chennai", "price": 170},
 ]
 
-bookings = []  # store bookings in memory (clears if server restarts)
+bookings = []  # store bookings in memory
 
 # --- Home Page ---
 @app.route('/')
@@ -44,7 +46,7 @@ def booking():
         total_price = flight["price"] + hotel["price"]
 
         # Save booking
-        booking = {
+        booking_entry = {
             "id": len(bookings) + 1,
             "customer_name": name,
             "email": email,
@@ -55,8 +57,8 @@ def booking():
             "total": total_price,
             "status": "Booked"
         }
-        bookings.append(booking)
-        return render_template('success.html')
+        bookings.append(booking_entry)
+        return render_template('success.html', booking=booking_entry)
 
     return render_template('booking.html', flights=flights, hotels=hotels)
 
